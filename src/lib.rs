@@ -6,7 +6,8 @@ use mac::{encoder_finish, encoder_ingest_bgra_frame, encoder_ingest_yuv_frame, e
 
 #[cfg(target_os = "windows")]
 use windows_capture::encoder::{
-    VideoEncoder as WVideoEncoder, VideoEncoderQuality, VideoEncoderType,
+    AudioSettingsBuilder, ContainerSettingsBuilder, VideoEncoder as WVideoEncoder,
+    VideoSettingsBuilder,
 };
 
 use anyhow::Error;
@@ -36,10 +37,9 @@ impl VideoEncoder {
         #[cfg(target_os = "windows")]
         let encoder = Some(
             WVideoEncoder::new(
-                VideoEncoderType::Mp4,
-                VideoEncoderQuality::Uhd2160p,
-                options.width as u32,
-                options.height as u32,
+                VideoSettingsBuilder::new(1920, 1080),
+                AudioSettingsBuilder::default().disabled(true),
+                ContainerSettingsBuilder::default(),
                 options.path,
             )
             .expect("Failed to create video encoder"),
