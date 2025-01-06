@@ -23,15 +23,14 @@ fn main() {
         target: None,
         show_cursor: true,
         show_highlight: true,
-        excluded_targets: None,
         output_type: FrameType::BGRAFrame,
         output_resolution: scap::capturer::Resolution::Captured,
-        crop_area: None,
         ..Default::default()
     };
 
     let mut capturer = Capturer::new(options);
     let [output_width, output_height] = capturer.get_output_frame_size();
+    println!("output_width: {}, output_height: {}", output_width, output_height);
 
     let mut encoder = VideoEncoder::new(VideoEncoderOptions {
         width: output_width as usize,
@@ -42,7 +41,7 @@ fn main() {
     capturer.start_capture();
 
     // #7 Capture 100 frames
-    for _ in 0..120 {
+    for _ in 0..100 {
         let frame = capturer.get_next_frame().expect("couldn't get next frame");
         encoder
             .ingest_next_frame(&frame)

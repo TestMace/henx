@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-scap = { git = "https://github.com/helmerapp/scap.git", branch = "main" }
+scap = { branch = "main", git = "https://github.com/TestMace/scap.git" }
 anyhow = "1.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
