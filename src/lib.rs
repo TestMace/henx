@@ -3,7 +3,9 @@ mod mac;
 
 #[cfg(target_os = "macos")]
 use mac::{encoder_finish, encoder_ingest_bgra_frame, encoder_ingest_yuv_frame, encoder_init, Int};
-
+#[cfg(target_os = "macos")]
+use swift_rs::autoreleasepool;
+#[cfg(target_os = "windows")]
 use windows_capture::encoder::{AudioSettingsBuilder, ContainerSettingsBuilder, ContainerSettingsSubType, VideoSettingsBuilder, VideoSettingsSubType};
 #[cfg(target_os = "windows")]
 use windows_capture::encoder::{
@@ -127,17 +129,27 @@ impl VideoEncoder {
 
                 #[cfg(target_os = "macos")]
                 unsafe {
-                    encoder_ingest_bgra_frame(
-                        self.encoder,
-                        frame.width as Int,
-                        frame.height as Int,
-                        timestamp as Int,
-                        frame.width as Int,
-                        frame.data.as_slice().into(),
-                    );
+                    autoreleasepool!({
+                        // println!("BGRA frame length: {}", frame.data.len());
+                        if frame.data.len() > 0 {
+                            encoder_ingest_bgra_frame(
+                                self.encoder,
+                                frame.width as Int,
+                                frame.height as Int,
+                                timestamp as Int,
+                                frame.width as Int,
+                                frame.data.as_slice().into(),
+                            );
+                            drop(frame);
+                        } else {
+                            println!("BGRA frame data is empty");
+                        }
+                        
+                    });
                 }
             }
             Frame::YUVFrame(frame) => {
+                println!("YUV frame timestamp: {}, {}, {}", frame.display_time, frame.width, frame.height);
                 #[cfg(target_os = "macos")]
                 {
                     if self.first_timestamp == 0 {
@@ -148,16 +160,19 @@ impl VideoEncoder {
 
                     #[cfg(target_os = "macos")]
                     unsafe {
-                        encoder_ingest_yuv_frame(
-                            self.encoder,
-                            frame.width as Int,
-                            frame.height as Int,
-                            timestamp as Int,
-                            frame.luminance_stride as Int,
-                            frame.luminance_bytes.as_slice().into(),
-                            frame.chrominance_stride as Int,
-                            frame.chrominance_bytes.as_slice().into(),
-                        );
+                        autoreleasepool!({
+                            encoder_ingest_yuv_frame(
+                                self.encoder,
+                                frame.width as Int,
+                                frame.height as Int,
+                                timestamp as Int,
+                                frame.luminance_stride as Int,
+                                frame.luminance_bytes.as_slice().into(),
+                                frame.chrominance_stride as Int,
+                                frame.chrominance_bytes.as_slice().into(),
+                            );
+                            drop(frame);
+                        })
                     }
                 }
             }

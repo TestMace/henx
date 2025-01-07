@@ -82,15 +82,5 @@ func createCvPixelBufferFromBgraFrameData(
         return nil
     }
 
-    // Get the base address of the pixel buffer
-    CVPixelBufferLockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
-    let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer!)
-
-    // Copy the BGRA data to the pixel buffer
-    let destPointer = baseAddress?.assumingMemoryBound(to: UInt8.self)
-    destPointer?.update(from: bgraBytes, count: bgraBytes.count)
-
-    CVPixelBufferUnlockBaseAddress(pixelBuffer!, CVPixelBufferLockFlags(rawValue: 0))
-
     return pixelBuffer
 }

@@ -8,7 +8,8 @@ scap = "0.0.8"
 anyhow = "1.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-swift-rs = "1.0.5"
+swift-rs = "1.0.7"
+cidre = { rev = "077a97600f0b7d5896375d8d3af0fa03bf166368", git = "https://github.com/yury/cidre" }
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 swift-rs = { version = "1.0.5", features = ["build"] }

@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Brendonovich/swift-rs",
       "state" : {
-        "revision" : "b5ed223fcdab165bc21219c1925dc1e77e2bef5e",
-        "version" : "1.0.6"
+        "revision" : "f64a4514de07f450ec5b6aa297624cd3479d9579",
+        "version" : "1.0.7"
       }
     }
   ],
