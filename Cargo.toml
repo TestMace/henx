@@ -9,7 +9,8 @@ anyhow = "1.0"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 swift-rs = "1.0.7"
-cidre = { rev = "077a97600f0b7d5896375d8d3af0fa03bf166368", git = "https://github.com/yury/cidre" }
+cidre = { rev = "6d6feafc7b0b84248500082f8d9467b6676811ef", git = "https://github.com/TestMace/cidre.git", features=["cf", "av", "cv", "ns", "cm"] }
+ffi="0.1.1"
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
 swift-rs = { version = "1.0.5", features = ["build"] }

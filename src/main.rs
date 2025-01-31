@@ -42,7 +42,7 @@ fn main() {
     
         capturer.start_capture();
 
-        for _ in 0..1_000 {
+        for _ in 0..10_000 {
             // autoreleasepool!({
             let frame = capturer.get_next_frame().expect("couldn't get next frame");
             encoder

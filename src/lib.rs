@@ -2,7 +2,7 @@
 mod mac;
 
 #[cfg(target_os = "macos")]
-use mac::{encoder_finish, encoder_ingest_bgra_frame, encoder_ingest_yuv_frame, encoder_init, Int};
+use mac::Encoder;
 #[cfg(target_os = "macos")]
 use swift_rs::autoreleasepool;
 #[cfg(target_os = "windows")]
@@ -21,7 +21,7 @@ pub struct VideoEncoder {
     first_timestamp: u64,
 
     #[cfg(target_os = "macos")]
-    encoder: *mut std::ffi::c_void,
+    encoder: Encoder,
 
     #[cfg(target_os = "windows")]
     encoder: Option<WVideoEncoder>,
@@ -79,13 +79,14 @@ impl VideoEncoder {
         );
 
         #[cfg(target_os = "macos")]
-        let encoder = unsafe {
-            encoder_init(
-                options.width as Int,
-                options.height as Int,
-                options.path.as_str().into(),
-            )
-        };
+        // let encoder = unsafe {
+        //     encoder_init(
+        //         options.width as Int,
+        //         options.height as Int,
+        //         options.path.as_str().into(),
+        //     )
+        // };
+        let encoder = Encoder::new(options.width as u32, options.height as u32, &options.path);
 
         Self {
             encoder,
@@ -129,15 +130,11 @@ impl VideoEncoder {
 
                 #[cfg(target_os = "macos")]
                 unsafe {
-                    autoreleasepool!({
+                    // autoreleasepool!({
                         // println!("BGRA frame length: {}", frame.data.len());
                         if frame.data.len() > 0 {
-                            encoder_ingest_bgra_frame(
-                                self.encoder,
-                                frame.width as Int,
-                                frame.height as Int,
-                                timestamp as Int,
-                                frame.width as Int,
+                            self.encoder.ingest_bgra_frame(
+                                timestamp as u64,
                                 frame.data.as_slice().into(),
                             );
                             drop(frame);
@@ -145,36 +142,36 @@ impl VideoEncoder {
                             println!("BGRA frame data is empty");
                         }
                         
-                    });
+                    // });
                 }
             }
             Frame::YUVFrame(frame) => {
-                println!("YUV frame timestamp: {}, {}, {}", frame.display_time, frame.width, frame.height);
-                #[cfg(target_os = "macos")]
-                {
-                    if self.first_timestamp == 0 {
-                        self.first_timestamp = frame.display_time;
-                    }
+                // println!("YUV frame timestamp: {}, {}, {}", frame.display_time, frame.width, frame.height);
+                // #[cfg(target_os = "macos")]
+                // {
+                //     if self.first_timestamp == 0 {
+                //         self.first_timestamp = frame.display_time;
+                //     }
 
-                    let timestamp = frame.display_time - self.first_timestamp;
+                //     let timestamp = frame.display_time - self.first_timestamp;
 
-                    #[cfg(target_os = "macos")]
-                    unsafe {
-                        autoreleasepool!({
-                            encoder_ingest_yuv_frame(
-                                self.encoder,
-                                frame.width as Int,
-                                frame.height as Int,
-                                timestamp as Int,
-                                frame.luminance_stride as Int,
-                                frame.luminance_bytes.as_slice().into(),
-                                frame.chrominance_stride as Int,
-                                frame.chrominance_bytes.as_slice().into(),
-                            );
-                            drop(frame);
-                        })
-                    }
-                }
+                //     #[cfg(target_os = "macos")]
+                //     unsafe {
+                //         autoreleasepool!({
+                //             encoder_ingest_yuv_frame(
+                //                 self.encoder,
+                //                 frame.width as Int,
+                //                 frame.height as Int,
+                //                 timestamp as Int,
+                //                 frame.luminance_stride as Int,
+                //                 frame.luminance_bytes.as_slice().into(),
+                //                 frame.chrominance_stride as Int,
+                //                 frame.chrominance_bytes.as_slice().into(),
+                //             );
+                //             drop(frame);
+                //         })
+                //     }
+                // }
             }
             _ => {
                 println!("henx doesn't support this pixel format yet")
@@ -196,7 +193,7 @@ impl VideoEncoder {
 
         #[cfg(target_os = "macos")]
         unsafe {
-            encoder_finish(self.encoder);
+            self.encoder.finish();
         }
         Ok(())
     }
